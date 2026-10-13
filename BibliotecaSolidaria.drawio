@@ -1,0 +1,284 @@
+
+<mxfile host="app.diagrams.net" version="24.7.17">
+  <diagram id="biblioteca-solidaria" name="Biblioteca Solidaria">
+    <mxGraphModel dx="1800" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2400" pageHeight="1800" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="title" value="BIBLIOTECA SOLIDÁRIA — DIAGRAMA DE CLASSES UML" style="text;html=1;align=center;verticalAlign=middle;fontSize=24;fontStyle=1;fontColor=#16324F;" vertex="1" parent="1">
+          <mxGeometry x="500" y="20" width="900" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- DOMINIO -->
+        <mxCell id="dom" value="DOMÍNIO" style="swimlane;html=1;startSize=30;fillColor=#D9EAF7;swimlaneFillColor=#FFFFFF;strokeColor=#5482A8;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="30" y="90" width="650" height="650" as="geometry"/>
+        </mxCell>
+        <mxCell id="usuario" value="&lt;&lt;abstract&gt;&gt;&lt;br&gt;&lt;b&gt;Usuario&lt;/b&gt;&lt;hr&gt;- id: UUID&lt;br&gt;- nome: String&lt;br&gt;- email: String&lt;br&gt;- ativo: boolean&lt;hr&gt;+ atualizarDados(): void" style="swimlane;html=1;startSize=28;rounded=0;fillColor=#D9EAF7;swimlaneFillColor=#FFFFFF;strokeColor=#5482A8;" vertex="1" parent="1">
+          <mxGeometry x="60" y="145" width="240" height="155" as="geometry"/>
+        </mxCell>
+        <mxCell id="doador" value="&lt;b&gt;Doador&lt;/b&gt;&lt;hr&gt;+ registrarDoacao(): void" style="swimlane;html=1;startSize=28;fillColor=#EAF3F8;swimlaneFillColor=#FFFFFF;strokeColor=#5482A8;" vertex="1" parent="1">
+          <mxGeometry x="60" y="335" width="240" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="leitor" value="&lt;b&gt;Leitor&lt;/b&gt;&lt;hr&gt;+ consultarAcervo(): List&lt;br&gt;+ solicitarEmprestimo(): Emprestimo" style="swimlane;html=1;startSize=28;fillColor=#EAF3F8;swimlaneFillColor=#FFFFFF;strokeColor=#5482A8;" vertex="1" parent="1">
+          <mxGeometry x="60" y="450" width="240" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="funcionario" value="&lt;b&gt;Funcionario&lt;/b&gt;&lt;hr&gt;+ avaliarDoacao(): void&lt;br&gt;+ registrarDevolucao(): void&lt;br&gt;+ gerarRelatorio(): Relatorio" style="swimlane;html=1;startSize=28;fillColor=#EAF3F8;swimlaneFillColor=#FFFFFF;strokeColor=#5482A8;" vertex="1" parent="1">
+          <mxGeometry x="60" y="575" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="livro" value="&lt;b&gt;Livro&lt;/b&gt;&lt;hr&gt;- id: UUID&lt;br&gt;- titulo: String&lt;br&gt;- autor: String&lt;br&gt;- isbn: String&lt;br&gt;- categoria: String&lt;br&gt;- status: StatusLivro&lt;hr&gt;+ estaDisponivel(): boolean&lt;br&gt;+ marcarEmprestado(): void" style="swimlane;html=1;startSize=28;fillColor=#D9EAF7;swimlaneFillColor=#FFFFFF;strokeColor=#5482A8;" vertex="1" parent="1">
+          <mxGeometry x="355" y="145" width="290" height="190" as="geometry"/>
+        </mxCell>
+        <mxCell id="doacao" value="&lt;&lt;abstract&gt;&gt;&lt;br&gt;&lt;b&gt;Doacao&lt;/b&gt;&lt;hr&gt;- id: UUID&lt;br&gt;- dataRegistro: LocalDate&lt;br&gt;- status: StatusDoacao&lt;hr&gt;+ aceitar(): void&lt;br&gt;+ recusar(): void" style="swimlane;html=1;startSize=28;fillColor=#D9EAF7;swimlaneFillColor=#FFFFFF;strokeColor=#5482A8;" vertex="1" parent="1">
+          <mxGeometry x="355" y="365" width="290" height="140" as="geometry"/>
+        </mxCell>
+        <mxCell id="doacaofisica" value="&lt;b&gt;DoacaoLivroFisico&lt;/b&gt;&lt;hr&gt;- estadoConservacao: EstadoConservacao&lt;br&gt;+ qualidadeAceitavel(): boolean" style="swimlane;html=1;startSize=28;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#5482A8;" vertex="1" parent="1">
+          <mxGeometry x="355" y="525" width="290" height="75" as="geometry"/>
+        </mxCell>
+        <mxCell id="doacaoebook" value="&lt;b&gt;DoacaoEbook&lt;/b&gt;&lt;hr&gt;- urlArquivo: String&lt;br&gt;- formato: String" style="swimlane;html=1;startSize=28;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#5482A8;" vertex="1" parent="1">
+          <mxGeometry x="355" y="610" width="140" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="doacaofin" value="&lt;b&gt;DoacaoFinanceira&lt;/b&gt;&lt;hr&gt;- valor: BigDecimal&lt;br&gt;- comprovante: String" style="swimlane;html=1;startSize=28;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#5482A8;" vertex="1" parent="1">
+          <mxGeometry x="505" y="610" width="140" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="emprestimo" value="&lt;b&gt;Emprestimo&lt;/b&gt;&lt;hr&gt;- id: UUID&lt;br&gt;- dataEmprestimo: LocalDate&lt;br&gt;- dataVencimento: LocalDate&lt;br&gt;- dataDevolucao: LocalDate&lt;br&gt;- status: StatusEmprestimo&lt;hr&gt;+ estaAtrasado(): boolean&lt;br&gt;+ registrarDevolucao(): void&lt;br&gt;+ calcularDiasAtraso(): int" style="swimlane;html=1;startSize=28;fillColor=#D9EAF7;swimlaneFillColor=#FFFFFF;strokeColor=#5482A8;" vertex="1" parent="1">
+          <mxGeometry x="710" y="145" width="270" height="195" as="geometry"/>
+        </mxCell>
+        <mxCell id="multa" value="&lt;b&gt;Multa&lt;/b&gt;&lt;hr&gt;- id: UUID&lt;br&gt;- valor: BigDecimal&lt;br&gt;- diasAtraso: int&lt;br&gt;- paga: boolean&lt;hr&gt;+ marcarComoPaga(): void" style="swimlane;html=1;startSize=28;fillColor=#D9EAF7;swimlaneFillColor=#FFFFFF;strokeColor=#5482A8;" vertex="1" parent="1">
+          <mxGeometry x="710" y="375" width="270" height="125" as="geometry"/>
+        </mxCell>
+        <mxCell id="reserva" value="&lt;b&gt;Reserva&lt;/b&gt;&lt;hr&gt;- id: UUID&lt;br&gt;- dataCriacao: LocalDateTime&lt;br&gt;- ativa: boolean&lt;hr&gt;+ cancelar(): void" style="swimlane;html=1;startSize=28;fillColor=#D9EAF7;swimlaneFillColor=#FFFFFF;strokeColor=#5482A8;" vertex="1" parent="1">
+          <mxGeometry x="710" y="530" width="270" height="115" as="geometry"/>
+        </mxCell>
+        <mxCell id="relatorio" value="&lt;b&gt;Relatorio&lt;/b&gt;&lt;hr&gt;- geradoEm: LocalDateTime&lt;br&gt;- tipo: String&lt;hr&gt;+ exportar(): byte[]" style="swimlane;html=1;startSize=28;fillColor=#D9EAF7;swimlaneFillColor=#FFFFFF;strokeColor=#5482A8;" vertex="1" parent="1">
+          <mxGeometry x="710" y="660" width="270" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- FACTORY -->
+        <mxCell id="factoryGroup" value="FACTORY METHOD" style="swimlane;html=1;startSize=30;fillColor=#FCE8CD;swimlaneFillColor=#FFFFFF;strokeColor=#C58B35;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1010" y="90" width="400" height="320" as="geometry"/>
+        </mxCell>
+        <mxCell id="ufactory" value="&lt;&lt;abstract&gt;&gt;&lt;br&gt;&lt;b&gt;UsuarioFactory&lt;/b&gt;&lt;hr&gt;+ criarUsuario(): Usuario&lt;br&gt;# criarInstancia(): Usuario" style="swimlane;html=1;startSize=28;fillColor=#FCE8CD;swimlaneFillColor=#FFFFFF;strokeColor=#C58B35;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="145" width="330" height="85" as="geometry"/>
+        </mxCell>
+        <mxCell id="dfactory" value="&lt;b&gt;DoadorFactory&lt;/b&gt;&lt;br&gt;+ criarInstancia(): Usuario" style="swimlane;html=1;startSize=28;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#C58B35;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="250" width="155" height="65" as="geometry"/>
+        </mxCell>
+        <mxCell id="lfactory" value="&lt;b&gt;LeitorFactory&lt;/b&gt;&lt;br&gt;+ criarInstancia(): Usuario" style="swimlane;html=1;startSize=28;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#C58B35;" vertex="1" parent="1">
+          <mxGeometry x="1205" y="250" width="155" height="65" as="geometry"/>
+        </mxCell>
+        <mxCell id="ffactory" value="&lt;b&gt;FuncionarioFactory&lt;/b&gt;&lt;br&gt;+ criarInstancia(): Usuario" style="swimlane;html=1;startSize=28;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#C58B35;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="330" width="190" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- STRATEGY -->
+        <mxCell id="strategyGroup" value="STRATEGY" style="swimlane;html=1;startSize=30;fillColor=#DDF2D8;swimlaneFillColor=#FFFFFF;strokeColor=#659D59;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1010" y="440" width="400" height="400" as="geometry"/>
+        </mxCell>
+        <mxCell id="estrategiaMulta" value="&lt;&lt;interface&gt;&gt;&lt;br&gt;&lt;b&gt;EstrategiaCalculoMulta&lt;/b&gt;&lt;hr&gt;+ calcular(diasAtraso): BigDecimal" style="swimlane;html=1;startSize=28;fillColor=#DDF2D8;swimlaneFillColor=#FFFFFF;strokeColor=#659D59;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="490" width="330" height="65" as="geometry"/>
+        </mxCell>
+        <mxCell id="multaFixa" value="&lt;b&gt;MultaFixaStrategy&lt;/b&gt;&lt;br&gt;- valorPorDia: BigDecimal" style="swimlane;html=1;startSize=28;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#659D59;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="570" width="155" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="multaProg" value="&lt;b&gt;MultaProgressivaStrategy&lt;/b&gt;&lt;br&gt;- fatorProgressao: BigDecimal" style="swimlane;html=1;startSize=28;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#659D59;" vertex="1" parent="1">
+          <mxGeometry x="1205" y="570" width="165" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="estrategiaBonif" value="&lt;&lt;interface&gt;&gt;&lt;br&gt;&lt;b&gt;EstrategiaBonificacao&lt;/b&gt;&lt;hr&gt;+ calcularPontos(): int" style="swimlane;html=1;startSize=28;fillColor=#DDF2D8;swimlaneFillColor=#FFFFFF;strokeColor=#659D59;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="650" width="330" height="65" as="geometry"/>
+        </mxCell>
+        <mxCell id="bonifQtd" value="&lt;b&gt;BonificacaoPorQuantidadeStrategy&lt;/b&gt;" style="swimlane;html=1;startSize=28;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#659D59;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="730" width="155" height="65" as="geometry"/>
+        </mxCell>
+        <mxCell id="bonifValor" value="&lt;b&gt;BonificacaoPorValorStrategy&lt;/b&gt;" style="swimlane;html=1;startSize=28;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#659D59;" vertex="1" parent="1">
+          <mxGeometry x="1205" y="730" width="165" height="65" as="geometry"/>
+        </mxCell>
+
+        <!-- OBSERVER -->
+        <mxCell id="observerGroup" value="OBSERVER" style="swimlane;html=1;startSize=30;fillColor=#E9DDF7;swimlaneFillColor=#FFFFFF;strokeColor=#8A68B1;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="90" width="400" height="330" as="geometry"/>
+        </mxCell>
+        <mxCell id="publicador" value="&lt;&lt;interface&gt;&gt;&lt;br&gt;&lt;b&gt;PublicadorEventos&lt;/b&gt;&lt;hr&gt;+ inscrever(): void&lt;br&gt;+ remover(): void&lt;br&gt;+ notificar(): void" style="swimlane;html=1;startSize=28;fillColor=#E9DDF7;swimlaneFillColor=#FFFFFF;strokeColor=#8A68B1;" vertex="1" parent="1">
+          <mxGeometry x="1470" y="145" width="170" height="105" as="geometry"/>
+        </mxCell>
+        <mxCell id="observador" value="&lt;&lt;interface&gt;&gt;&lt;br&gt;&lt;b&gt;ObservadorBiblioteca&lt;/b&gt;&lt;hr&gt;+ atualizar(evento): void" style="swimlane;html=1;startSize=28;fillColor=#E9DDF7;swimlaneFillColor=#FFFFFF;strokeColor=#8A68B1;" vertex="1" parent="1">
+          <mxGeometry x="1650" y="145" width="160" height="105" as="geometry"/>
+        </mxCell>
+        <mxCell id="email" value="&lt;b&gt;NotificadorEmail&lt;/b&gt;" style="swimlane;html=1;startSize=28;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#8A68B1;" vertex="1" parent="1">
+          <mxGeometry x="1470" y="270" width="155" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="sistema" value="&lt;b&gt;NotificadorSistema&lt;/b&gt;" style="swimlane;html=1;startSize=28;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#8A68B1;" vertex="1" parent="1">
+          <mxGeometry x="1640" y="270" width="170" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="evento" value="&lt;b&gt;EventoBiblioteca&lt;/b&gt;&lt;hr&gt;- tipo: String&lt;br&gt;- mensagem: String&lt;br&gt;- criadoEm: LocalDateTime" style="swimlane;html=1;startSize=28;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#8A68B1;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="340" width="250" height="65" as="geometry"/>
+        </mxCell>
+
+        <!-- ADAPTER -->
+        <mxCell id="adapterGroup" value="ADAPTER" style="swimlane;html=1;startSize=30;fillColor=#D4F1ED;swimlaneFillColor=#FFFFFF;strokeColor=#398F84;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="450" width="400" height="390" as="geometry"/>
+        </mxCell>
+        <mxCell id="gateway" value="&lt;&lt;interface&gt;&gt;&lt;br&gt;&lt;b&gt;GatewayPagamento&lt;/b&gt;&lt;hr&gt;+ pagar(valor, referencia): ResultadoPagamento" style="swimlane;html=1;startSize=28;fillColor=#D4F1ED;swimlaneFillColor=#FFFFFF;strokeColor=#398F84;" vertex="1" parent="1">
+          <mxGeometry x="1470" y="495" width="340" height="65" as="geometry"/>
+        </mxCell>
+        <mxCell id="pagAdapter" value="&lt;b&gt;PagamentoExternoAdapter&lt;/b&gt;" style="swimlane;html=1;startSize=28;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#398F84;" vertex="1" parent="1">
+          <mxGeometry x="1470" y="575" width="165" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="apiPagamento" value="&lt;&lt;external&gt;&gt;&lt;br&gt;&lt;b&gt;APIExternaPagamento&lt;/b&gt;&lt;hr&gt;+ efetuarCobranca(): String" style="swimlane;html=1;startSize=28;fillColor=#FFFFFF;swimlaneFillColor=#398F84;strokeColor=#398F84;" vertex="1" parent="1">
+          <mxGeometry x="1645" y="575" width="165" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="catalogo" value="&lt;&lt;interface&gt;&gt;&lt;br&gt;&lt;b&gt;CatalogoExterno&lt;/b&gt;&lt;hr&gt;+ buscarPorISBN(): Livro" style="swimlane;html=1;startSize=28;fillColor=#D4F1ED;swimlaneFillColor=#FFFFFF;strokeColor=#398F84;" vertex="1" parent="1">
+          <mxGeometry x="1470" y="655" width="165" height="65" as="geometry"/>
+        </mxCell>
+        <mxCell id="catAdapter" value="&lt;b&gt;CatalogoGlobalAdapter&lt;/b&gt;" style="swimlane;html=1;startSize=28;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#398F84;" vertex="1" parent="1">
+          <mxGeometry x="1645" y="655" width="165" height="65" as="geometry"/>
+        </mxCell>
+        <mxCell id="apiCatalogo" value="&lt;&lt;external&gt;&gt;&lt;br&gt;&lt;b&gt;APICatalogoGlobal&lt;/b&gt;&lt;hr&gt;+ pesquisar(isbn): DadosLivroExterno" style="swimlane;html=1;startSize=28;fillColor=#FFFFFF;swimlaneFillColor=#398F84;strokeColor=#398F84;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="740" width="250" height="65" as="geometry"/>
+        </mxCell>
+
+        <!-- SERVICES FACADE -->
+        <mxCell id="servicesGroup" value="SERVIÇOS E FACADE" style="swimlane;html=1;startSize=30;fillColor=#F7DCDC;swimlaneFillColor=#FFFFFF;strokeColor=#B96B6B;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="30" y="790" width="950" height="410" as="geometry"/>
+        </mxCell>
+        <mxCell id="empService" value="&lt;b&gt;EmprestimoService&lt;/b&gt;&lt;hr&gt;- emprestimoRepo: EmprestimoRepository&lt;br&gt;- livroRepo: LivroRepository&lt;br&gt;- estrategiaMulta: EstrategiaCalculoMulta&lt;hr&gt;+ emprestar(): Emprestimo&lt;br&gt;+ devolver(): void&lt;br&gt;+ calcularMulta(): Multa" style="swimlane;html=1;startSize=28;fillColor=#F7DCDC;swimlaneFillColor=#FFFFFF;strokeColor=#B96B6B;" vertex="1" parent="1">
+          <mxGeometry x="60" y="850" width="280" height="145" as="geometry"/>
+        </mxCell>
+        <mxCell id="doaService" value="&lt;b&gt;DoacaoService&lt;/b&gt;&lt;hr&gt;- doacaoRepo: DoacaoRepository&lt;br&gt;- estrategiaBonificacao: EstrategiaBonificacao&lt;hr&gt;+ registrar(): Doacao&lt;br&gt;+ avaliar(): void&lt;br&gt;+ calcularBonificacao(): int" style="swimlane;html=1;startSize=28;fillColor=#F7DCDC;swimlaneFillColor=#FFFFFF;strokeColor=#B96B6B;" vertex="1" parent="1">
+          <mxGeometry x="360" y="850" width="280" height="145" as="geometry"/>
+        </mxCell>
+        <mxCell id="acervoService" value="&lt;b&gt;AcervoService&lt;/b&gt;&lt;hr&gt;- livroRepo: LivroRepository&lt;br&gt;- catalogoExterno: CatalogoExterno&lt;hr&gt;+ consultarDisponiveis(): List&lt;br&gt;+ importarPorISBN(): Livro" style="swimlane;html=1;startSize=28;fillColor=#F7DCDC;swimlaneFillColor=#FFFFFF;strokeColor=#B96B6B;" vertex="1" parent="1">
+          <mxGeometry x="660" y="850" width="280" height="125" as="geometry"/>
+        </mxCell>
+        <mxCell id="multaService" value="&lt;b&gt;MultaService&lt;/b&gt;&lt;hr&gt;- gatewayPagamento: GatewayPagamento&lt;hr&gt;+ pagar(multa): ResultadoPagamento" style="swimlane;html=1;startSize=28;fillColor=#F7DCDC;swimlaneFillColor=#FFFFFF;strokeColor=#B96B6B;" vertex="1" parent="1">
+          <mxGeometry x="660" y="990" width="280" height="95" as="geometry"/>
+        </mxCell>
+        <mxCell id="facade" value="&lt;&lt;Facade&gt;&gt;&lt;br&gt;&lt;b&gt;BibliotecaFacade&lt;/b&gt;&lt;hr&gt;- emprestimoService: EmprestimoService&lt;br&gt;- doacaoService: DoacaoService&lt;br&gt;- acervoService: AcervoService&lt;br&gt;- multaService: MultaService&lt;hr&gt;+ realizarEmprestimo(): Emprestimo&lt;br&gt;+ registrarDevolucao(): void&lt;br&gt;+ registrarDoacao(): Doacao&lt;br&gt;+ consultarLivrosDisponiveis(): List&lt;br&gt;+ pagarMulta(): ResultadoPagamento" style="swimlane;html=1;startSize=28;fillColor=#F2C6C6;swimlaneFillColor=#FFFFFF;strokeColor=#B96B6B;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1015" width="580" height="155" as="geometry"/>
+        </mxCell>
+
+        <!-- SINGLETON E REPOSITORIOS -->
+        <mxCell id="infraGroup" value="SINGLETON E PERSISTÊNCIA" style="swimlane;html=1;startSize=30;fillColor=#E5E7EB;swimlaneFillColor=#FFFFFF;strokeColor=#6B7280;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1010" y="870" width="830" height="330" as="geometry"/>
+        </mxCell>
+        <mxCell id="config" value="&lt;&lt;Singleton&gt;&gt;&lt;br&gt;&lt;b&gt;ConfiguracaoSistema&lt;/b&gt;&lt;hr&gt;- instancia: ConfiguracaoSistema&lt;hr&gt;+ getInstancia(): ConfiguracaoSistema&lt;br&gt;+ obter(chave): String" style="swimlane;html=1;startSize=28;fillColor=#E5E7EB;swimlaneFillColor=#FFFFFF;strokeColor=#6B7280;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="920" width="240" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="conexao" value="&lt;&lt;Singleton&gt;&gt;&lt;br&gt;&lt;b&gt;ConexaoBancoDados&lt;/b&gt;&lt;hr&gt;- instancia: ConexaoBancoDados&lt;hr&gt;+ getInstancia(): ConexaoBancoDados&lt;br&gt;+ obterConexao(): Connection" style="swimlane;html=1;startSize=28;fillColor=#E5E7EB;swimlaneFillColor=#FFFFFF;strokeColor=#6B7280;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="920" width="250" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="repoUsuario" value="&lt;&lt;interface&gt;&gt;&lt;br&gt;&lt;b&gt;UsuarioRepository&lt;/b&gt;&lt;hr&gt;+ salvar(): Usuario&lt;br&gt;+ buscarPorId(): Usuario" style="swimlane;html=1;startSize=28;fillColor=#E5E7EB;swimlaneFillColor=#FFFFFF;strokeColor=#6B7280;" vertex="1" parent="1">
+          <mxGeometry x="1570" y="920" width="240" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="repoLivro" value="&lt;&lt;interface&gt;&gt;&lt;br&gt;&lt;b&gt;LivroRepository&lt;/b&gt;&lt;hr&gt;+ salvar(): Livro&lt;br&gt;+ listarDisponiveis(): List" style="swimlane;html=1;startSize=28;fillColor=#E5E7EB;swimlaneFillColor=#FFFFFF;strokeColor=#6B7280;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="1040" width="240" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="repoDoacao" value="&lt;&lt;interface&gt;&gt;&lt;br&gt;&lt;b&gt;DoacaoRepository&lt;/b&gt;&lt;hr&gt;+ salvar(): Doacao" style="swimlane;html=1;startSize=28;fillColor=#E5E7EB;swimlaneFillColor=#FFFFFF;strokeColor=#6B7280;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="1040" width="250" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="repoEmp" value="&lt;&lt;interface&gt;&gt;&lt;br&gt;&lt;b&gt;EmprestimoRepository&lt;/b&gt;&lt;hr&gt;+ salvar(): Emprestimo&lt;br&gt;+ listarAtivosPorLeitor(): List" style="swimlane;html=1;startSize=28;fillColor=#E5E7EB;swimlaneFillColor=#FFFFFF;strokeColor=#6B7280;" vertex="1" parent="1">
+          <mxGeometry x="1570" y="1020" width="240" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- MVC -->
+        <mxCell id="mvcGroup" value="MVC — CONTROLLERS E VIEWS" style="swimlane;html=1;startSize=30;fillColor=#FFF1CC;swimlaneFillColor=#FFFFFF;strokeColor=#C5A343;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="30" y="1230" width="1810" height="300" as="geometry"/>
+        </mxCell>
+        <mxCell id="userCtrl" value="&lt;b&gt;UsuarioController&lt;/b&gt;&lt;hr&gt;+ cadastrarDoador(): Usuario&lt;br&gt;+ cadastrarLeitor(): Usuario" style="swimlane;html=1;startSize=28;fillColor=#FFF1CC;swimlaneFillColor=#FFFFFF;strokeColor=#C5A343;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1285" width="210" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="acervoCtrl" value="&lt;b&gt;AcervoController&lt;/b&gt;&lt;hr&gt;+ listarDisponiveis(): List" style="swimlane;html=1;startSize=28;fillColor=#FFF1CC;swimlaneFillColor=#FFFFFF;strokeColor=#C5A343;" vertex="1" parent="1">
+          <mxGeometry x="285" y="1285" width="190" height="75" as="geometry"/>
+        </mxCell>
+        <mxCell id="empCtrl" value="&lt;b&gt;EmprestimoController&lt;/b&gt;&lt;hr&gt;+ emprestar(): Emprestimo&lt;br&gt;+ devolver(): void" style="swimlane;html=1;startSize=28;fillColor=#FFF1CC;swimlaneFillColor=#FFFFFF;strokeColor=#C5A343;" vertex="1" parent="1">
+          <mxGeometry x="490" y="1285" width="220" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="doaCtrl" value="&lt;b&gt;DoacaoController&lt;/b&gt;&lt;hr&gt;+ registrar(): Doacao" style="swimlane;html=1;startSize=28;fillColor=#FFF1CC;swimlaneFillColor=#FFFFFF;strokeColor=#C5A343;" vertex="1" parent="1">
+          <mxGeometry x="725" y="1285" width="190" height="75" as="geometry"/>
+        </mxCell>
+        <mxCell id="funcCtrl" value="&lt;b&gt;FuncionarioController&lt;/b&gt;&lt;hr&gt;+ avaliarDoacao(): void&lt;br&gt;+ relatorio(): Relatorio" style="swimlane;html=1;startSize=28;fillColor=#FFF1CC;swimlaneFillColor=#FFFFFF;strokeColor=#C5A343;" vertex="1" parent="1">
+          <mxGeometry x="930" y="1285" width="220" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="siteView" value="&lt;&lt;View&gt;&gt;&lt;br&gt;&lt;b&gt;SiteView&lt;/b&gt;&lt;hr&gt;Interface do leitor e doador" style="swimlane;html=1;startSize=28;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#C5A343;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="1285" width="220" height="75" as="geometry"/>
+        </mxCell>
+        <mxCell id="painelView" value="&lt;&lt;View&gt;&gt;&lt;br&gt;&lt;b&gt;PainelFuncionarioView&lt;/b&gt;&lt;hr&gt;Interface administrativa" style="swimlane;html=1;startSize=28;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#C5A343;" vertex="1" parent="1">
+          <mxGeometry x="1430" y="1285" width="250" height="75" as="geometry"/>
+        </mxCell>
+
+        <!-- HERANCA -->
+        <mxCell id="e1" value="" style="endArrow=block;endFill=0;html=1;" edge="1" parent="1" source="doador" target="usuario"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e2" value="" style="endArrow=block;endFill=0;html=1;" edge="1" parent="1" source="leitor" target="usuario"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e3" value="" style="endArrow=block;endFill=0;html=1;" edge="1" parent="1" source="funcionario" target="usuario"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e4" value="" style="endArrow=block;endFill=0;html=1;" edge="1" parent="1" source="doacaofisica" target="doacao"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e5" value="" style="endArrow=block;endFill=0;html=1;" edge="1" parent="1" source="doacaoebook" target="doacao"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e6" value="" style="endArrow=block;endFill=0;html=1;" edge="1" parent="1" source="doacaofin" target="doacao"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- ASSOCIACOES DE DOMINIO -->
+        <mxCell id="e7" value="realiza 1 : 0..*" style="endArrow=none;startArrow=none;html=1;strokeColor=#5482A8;" edge="1" parent="1" source="doador" target="doacao"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e8" value="solicita 1 : 0..*" style="endArrow=none;html=1;strokeColor=#5482A8;" edge="1" parent="1" source="leitor" target="emprestimo"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e9" value="historico 1 : 0..*" style="endArrow=none;html=1;strokeColor=#5482A8;" edge="1" parent="1" source="livro" target="emprestimo"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e10" value="pode gerar 1 : 0..1" style="endArrow=diamond;endFill=0;html=1;strokeColor=#5482A8;" edge="1" parent="1" source="emprestimo" target="multa"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e11" value="reserva" style="endArrow=none;html=1;strokeColor=#5482A8;" edge="1" parent="1" source="leitor" target="reserva"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e12" value="alvo" style="endArrow=none;html=1;strokeColor=#5482A8;" edge="1" parent="1" source="livro" target="reserva"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e13" value="incorpora ao acervo" style="endArrow=none;html=1;strokeColor=#5482A8;" edge="1" parent="1" source="doacaofisica" target="livro"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- FACTORY -->
+        <mxCell id="e14" value="herda" style="endArrow=block;endFill=0;html=1;strokeColor=#C58B35;" edge="1" parent="1" source="dfactory" target="ufactory"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e15" value="herda" style="endArrow=block;endFill=0;html=1;strokeColor=#C58B35;" edge="1" parent="1" source="lfactory" target="ufactory"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e16" value="herda" style="endArrow=block;endFill=0;html=1;strokeColor=#C58B35;" edge="1" parent="1" source="ffactory" target="ufactory"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e17" value="cria" style="dashed=1;endArrow=open;html=1;strokeColor=#C58B35;" edge="1" parent="1" source="ufactory" target="usuario"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- STRATEGY -->
+        <mxCell id="e18" value="implementa" style="endArrow=block;endFill=0;html=1;strokeColor=#659D59;" edge="1" parent="1" source="multaFixa" target="estrategiaMulta"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e19" value="implementa" style="endArrow=block;endFill=0;html=1;strokeColor=#659D59;" edge="1" parent="1" source="multaProg" target="estrategiaMulta"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e20" value="implementa" style="endArrow=block;endFill=0;html=1;strokeColor=#659D59;" edge="1" parent="1" source="bonifQtd" target="estrategiaBonif"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e21" value="implementa" style="endArrow=block;endFill=0;html=1;strokeColor=#659D59;" edge="1" parent="1" source="bonifValor" target="estrategiaBonif"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e22" value="usa" style="dashed=1;endArrow=open;html=1;strokeColor=#659D59;" edge="1" parent="1" source="empService" target="estrategiaMulta"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e23" value="usa" style="dashed=1;endArrow=open;html=1;strokeColor=#659D59;" edge="1" parent="1" source="doaService" target="estrategiaBonif"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- OBSERVER -->
+        <mxCell id="e24" value="notifica" style="dashed=1;endArrow=open;html=1;strokeColor=#8A68B1;" edge="1" parent="1" source="publicador" target="observador"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e25" value="implementa" style="endArrow=block;endFill=0;html=1;strokeColor=#8A68B1;" edge="1" parent="1" source="email" target="observador"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e26" value="implementa" style="endArrow=block;endFill=0;html=1;strokeColor=#8A68B1;" edge="1" parent="1" source="sistema" target="observador"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e27" value="publica eventos" style="dashed=1;endArrow=open;html=1;strokeColor=#8A68B1;" edge="1" parent="1" source="empService" target="publicador"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e28" value="evento" style="dashed=1;endArrow=open;html=1;strokeColor=#8A68B1;" edge="1" parent="1" source="observador" target="evento"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- ADAPTER -->
+        <mxCell id="e29" value="implementa" style="endArrow=block;endFill=0;html=1;strokeColor=#398F84;" edge="1" parent="1" source="pagAdapter" target="gateway"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e30" value="adapta API" style="dashed=1;endArrow=open;html=1;strokeColor=#398F84;" edge="1" parent="1" source="pagAdapter" target="apiPagamento"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e31" value="implementa" style="endArrow=block;endFill=0;html=1;strokeColor=#398F84;" edge="1" parent="1" source="catAdapter" target="catalogo"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e32" value="adapta API" style="dashed=1;endArrow=open;html=1;strokeColor=#398F84;" edge="1" parent="1" source="catAdapter" target="apiCatalogo"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e33" value="usa gateway" style="dashed=1;endArrow=open;html=1;strokeColor=#398F84;" edge="1" parent="1" source="multaService" target="gateway"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e34" value="usa catálogo" style="dashed=1;endArrow=open;html=1;strokeColor=#398F84;" edge="1" parent="1" source="acervoService" target="catalogo"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- FACADE -->
+        <mxCell id="e35" value="coordena" style="dashed=1;endArrow=open;html=1;strokeColor=#B96B6B;" edge="1" parent="1" source="facade" target="empService"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e36" value="coordena" style="dashed=1;endArrow=open;html=1;strokeColor=#B96B6B;" edge="1" parent="1" source="facade" target="doaService"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e37" value="coordena" style="dashed=1;endArrow=open;html=1;strokeColor=#B96B6B;" edge="1" parent="1" source="facade" target="acervoService"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e38" value="coordena" style="dashed=1;endArrow=open;html=1;strokeColor=#B96B6B;" edge="1" parent="1" source="facade" target="multaService"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- MVC -->
+        <mxCell id="e39" value="usa Facade" style="dashed=1;endArrow=open;html=1;strokeColor=#C5A343;" edge="1" parent="1" source="userCtrl" target="facade"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e40" value="usa Facade" style="dashed=1;endArrow=open;html=1;strokeColor=#C5A343;" edge="1" parent="1" source="acervoCtrl" target="facade"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e41" value="usa Facade" style="dashed=1;endArrow=open;html=1;strokeColor=#C5A343;" edge="1" parent="1" source="empCtrl" target="facade"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e42" value="usa Facade" style="dashed=1;endArrow=open;html=1;strokeColor=#C5A343;" edge="1" parent="1" source="doaCtrl" target="facade"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e43" value="usa Facade" style="dashed=1;endArrow=open;html=1;strokeColor=#C5A343;" edge="1" parent="1" source="funcCtrl" target="facade"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e44" value="aciona" style="dashed=1;endArrow=open;html=1;strokeColor=#C5A343;" edge="1" parent="1" source="siteView" target="empCtrl"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e45" value="aciona" style="dashed=1;endArrow=open;html=1;strokeColor=#C5A343;" edge="1" parent="1" source="painelView" target="funcCtrl"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- REPOSITORIOS E SINGLETON -->
+        <mxCell id="e46" value="usa conexão" style="dashed=1;endArrow=open;html=1;strokeColor=#6B7280;" edge="1" parent="1" source="config" target="conexao"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e47" value="persistência SQL" style="dashed=1;endArrow=open;html=1;strokeColor=#6B7280;" edge="1" parent="1" source="repoUsuario" target="conexao"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e48" value="persistência SQL" style="dashed=1;endArrow=open;html=1;strokeColor=#6B7280;" edge="1" parent="1" source="repoLivro" target="conexao"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e49" value="persistência SQL" style="dashed=1;endArrow=open;html=1;strokeColor=#6B7280;" edge="1" parent="1" source="repoDoacao" target="conexao"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e50" value="persistência SQL" style="dashed=1;endArrow=open;html=1;strokeColor=#6B7280;" edge="1" parent="1" source="repoEmp" target="conexao"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e51" value="usa repositório" style="dashed=1;endArrow=open;html=1;strokeColor=#6B7280;" edge="1" parent="1" source="empService" target="repoEmp"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e52" value="usa repositório" style="dashed=1;endArrow=open;html=1;strokeColor=#6B7280;" edge="1" parent="1" source="doaService" target="repoDoacao"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e53" value="usa repositório" style="dashed=1;endArrow=open;html=1;strokeColor=#6B7280;" edge="1" parent="1" source="acervoService" target="repoLivro"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
