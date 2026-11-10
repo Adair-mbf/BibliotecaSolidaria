@@ -1,34 +1,27 @@
 package br.com.bibliotecasolidaria.factory;
 
-import br.com.bibliotecasolidaria.model.Domain.TipoUsuario;
-import br.com.bibliotecasolidaria.persistence.UsuarioDao;
-
+import br.com.bibliotecasolidaria.model.TipoUsuario;
 import java.util.EnumMap;
 import java.util.Map;
 
-/** Registro central das Concrete Creators de usuário. */
-public final class FabricaRegistry {
-    private final Map<TipoUsuario, UsuarioFactory> factories;
+public class FabricaRegistry {
+    private final Map<TipoUsuario, UsuarioFactory> fabricas = new EnumMap<>(TipoUsuario.class);
 
-    public FabricaRegistry(UsuarioDao usuarios) {
-        factories = new EnumMap<>(TipoUsuario.class);
-        registrar(new DoadorFactory(usuarios));
-        registrar(new UsuarioSiteFactory(usuarios));
-        registrar(new FuncionarioFactory(usuarios));
+    public FabricaRegistry() {
+        registrar(TipoUsuario.DOADOR, new DoadorFactory());
+        registrar(TipoUsuario.USUARIO_SITE, new UsuarioSiteFactory());
+        registrar(TipoUsuario.FUNCIONARIO, new FuncionarioFactory());
     }
 
-    public UsuarioFactory porTipo(TipoUsuario tipo) {
-        if (tipo == null) {
-            throw new IllegalArgumentException("O tipo de usuário é obrigatório.");
-        }
-        UsuarioFactory factory = factories.get(tipo);
-        if (factory == null) {
-            throw new IllegalArgumentException("Não existe factory registrada para " + tipo + ".");
-        }
-        return factory;
+    public void registrar(TipoUsuario tipo, UsuarioFactory f) {
+        fabricas.put(tipo, f);
     }
 
-    private void registrar(UsuarioFactory factory) {
-        factories.put(factory.tipoSuportado(), factory);
+    public UsuarioFactory obter(TipoUsuario tipo) {
+        UsuarioFactory f = fabricas.get(tipo);
+        if (f == null) {
+            throw new IllegalArgumentException("Nenhuma fábrica registrada para o tipo: " + tipo);
+        }
+        return f;
     }
 }

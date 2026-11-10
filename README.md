@@ -1,28 +1,20 @@
-# Biblioteca Solidária - DAOs
+# Biblioteca Solidária - Backend MVC (Sem Frontend)
 
-Camada de persistência Java 17 usando JDBC e PostgreSQL, estruturada a partir das entidades do diagrama `biblioteca_solidaria.drawio`.
+Sistema de gestão de biblioteca solidária em Java sem interface gráfica, estruturado de acordo com o diagrama `biblioteca_solidaria.drawio`.
 
-## Configuração
+## Padrões Arquiteturais e GoF Implementados:
+- **MVC (Backend Puro)**: Model (Entidades e Repositórios), Service/Facade e Controllers REST (sem Views).
+- **Factory Method**: Criação polimórfica de `Doador`, `UsuarioSite` e `Funcionario` com `FabricaRegistry`.
+- **Strategy**: 
+  - Cálculo de Multa (`MultaFixaDiaria`, `MultaProgressiva`).
+  - Política de Renovação (`LimiteFixoRenovacao`, `SemRenovacao`).
+  - Bonificação de Doações (`BonificacaoPorQuantidade`, `BonificacaoPorValor`, `BonificacaoEmpresarial`).
+- **Observer**: `PublicadorEventos` notificando observadores via `CanalEmail` e `CanalPainelInterno`.
+- **Adapter**: Desacoplamento para `GatewayPagamento` e `AcervoGlobalProvider`.
+- **Singleton**: `ConexaoBanco` e `ConfiguracaoSistema` thread-safe.
+- **Facade**: `EmprestimoFacade` e `DoacaoFacade`.
 
-Defina as variáveis de ambiente `DB_URL`, `DB_USER` e `DB_PASSWORD`. Exemplo de URL:
-
-```text
-jdbc:postgresql://localhost:5432/biblioteca_solidaria
+## Como executar os testes JUnit 5:
+```bash
+mvn clean test
 ```
-
-Execute `src/main/resources/db/schema.sql` no banco antes de usar os DAOs. As conexões são abertas por operação; não compartilhe uma mesma `Connection` entre threads.
-
-## DAOs disponíveis
-
-`UsuarioDao`, `DoacaoDao`, `LivroDao`, `ItemAcervoDao`, `EmprestimoDao`, `MultaDao`, `ReservaDao`, `BonificacaoDao` e `NotificacaoDao` implementam `Dao<T>` com `findById`, `findAll`, `save`, `update` e `deleteById`. Os DAOs aceitam um `SqlConnectionProvider`, o que permite substituir a fábrica por um provedor de conexões de teste.
-
-O modelo usa `Domain` para agrupar os registros e enums do diagrama. A hierarquia de usuário, doação e item de acervo é persistida em tabelas únicas com campos de subtipo opcionais e uma coluna discriminadora (`tipo_usuario`, `tipo`).
-
-Para obter a fábrica configurada pelo ambiente:
-
-```java
-var connections = ConnectionFactory.fromEnvironment();
-var usuarios = new UsuarioDao(connections);
-```
-
-Os DAOs lançam `SQLException` ao ocorrer falha de persistência; o tratamento é responsabilidade da camada chamadora.

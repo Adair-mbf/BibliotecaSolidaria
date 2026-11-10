@@ -1,22 +1,14 @@
 package br.com.bibliotecasolidaria.factory;
 
 import br.com.bibliotecasolidaria.dto.DadosUsuario;
-import br.com.bibliotecasolidaria.model.Domain.TipoUsuario;
-import br.com.bibliotecasolidaria.model.Domain.Usuario;
-import br.com.bibliotecasolidaria.persistence.UsuarioDao;
+import br.com.bibliotecasolidaria.model.Doador;
+import br.com.bibliotecasolidaria.model.Usuario;
 
-/** Concrete Creator para usuários do tipo doador. */
-public final class DoadorFactory extends UsuarioFactory {
-    public DoadorFactory(UsuarioDao usuarios) { super(usuarios); }
-
+public class DoadorFactory extends UsuarioFactory {
     @Override
     protected Usuario criarUsuario(DadosUsuario dados) {
-        return usuarioBase(dados, TipoUsuario.DOADOR,
-                dados.atributoObrigatorio("documento"),
-                dados.atributoBooleano("pessoaJuridica"),
-                null, null, null, null);
+        String doc = dados.getAtributosEspecificos() != null ? dados.getAtributosEspecificos().get("documento") : "";
+        boolean pj = dados.getAtributosEspecificos() != null && Boolean.parseBoolean(dados.getAtributosEspecificos().get("pessoaJuridica"));
+        return new Doador(null, dados.getNome(), dados.getEmail(), dados.getSenha(), true, doc, pj);
     }
-
-    @Override
-    protected TipoUsuario tipoSuportado() { return TipoUsuario.DOADOR; }
 }

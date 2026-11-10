@@ -1,21 +1,14 @@
 package br.com.bibliotecasolidaria.factory;
 
 import br.com.bibliotecasolidaria.dto.DadosUsuario;
-import br.com.bibliotecasolidaria.model.Domain.TipoUsuario;
-import br.com.bibliotecasolidaria.model.Domain.Usuario;
-import br.com.bibliotecasolidaria.persistence.UsuarioDao;
+import br.com.bibliotecasolidaria.model.Funcionario;
+import br.com.bibliotecasolidaria.model.Usuario;
 
-/** Concrete Creator para funcionários. */
-public final class FuncionarioFactory extends UsuarioFactory {
-    public FuncionarioFactory(UsuarioDao usuarios) { super(usuarios); }
-
+public class FuncionarioFactory extends UsuarioFactory {
     @Override
     protected Usuario criarUsuario(DadosUsuario dados) {
-        return usuarioBase(dados, TipoUsuario.FUNCIONARIO, null, null, null, null,
-                dados.atributoObrigatorio("matricula"),
-                dados.atributoObrigatorio("cargo"));
+        String mat = dados.getAtributosEspecificos() != null ? dados.getAtributosEspecificos().get("matricula") : "";
+        String cargo = dados.getAtributosEspecificos() != null ? dados.getAtributosEspecificos().get("cargo") : "Atendente";
+        return new Funcionario(null, dados.getNome(), dados.getEmail(), dados.getSenha(), true, mat, cargo);
     }
-
-    @Override
-    protected TipoUsuario tipoSuportado() { return TipoUsuario.FUNCIONARIO; }
 }

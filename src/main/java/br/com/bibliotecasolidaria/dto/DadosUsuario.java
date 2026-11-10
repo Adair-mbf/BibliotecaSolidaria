@@ -1,40 +1,33 @@
 package br.com.bibliotecasolidaria.dto;
 
-import br.com.bibliotecasolidaria.model.Domain.TipoUsuario;
-
+import br.com.bibliotecasolidaria.model.TipoUsuario;
 import java.util.Map;
 
-/** Dados de entrada para o cadastro desacoplado de um usuário. */
-public record DadosUsuario(
-        String nome,
-        String email,
-        String senha,
-        TipoUsuario tipo,
-        Map<String, String> atributosEspecificos) {
+public class DadosUsuario {
+    private String nome;
+    private String email;
+    private String senha;
+    private TipoUsuario tipo;
+    private Map<String, String> atributosEspecificos;
 
-    public DadosUsuario {
-        atributosEspecificos = atributosEspecificos == null
-                ? Map.of()
-                : Map.copyOf(atributosEspecificos);
+    public DadosUsuario() {}
+
+    public DadosUsuario(String nome, String email, String senha, TipoUsuario tipo, Map<String, String> atributosEspecificos) {
+        this.nome = nome;
+        this.email = email;
+        this.senha = senha;
+        this.tipo = tipo;
+        this.atributosEspecificos = atributosEspecificos;
     }
 
-    public DadosUsuario(String nome, String email, String senha, TipoUsuario tipo) {
-        this(nome, email, senha, tipo, Map.of());
-    }
-
-    public String atributoObrigatorio(String nomeAtributo) {
-        String valor = atributosEspecificos.get(nomeAtributo);
-        if (valor == null || valor.isBlank()) {
-            throw new IllegalArgumentException("O atributo específico '" + nomeAtributo + "' é obrigatório.");
-        }
-        return valor.trim();
-    }
-
-    public boolean atributoBooleano(String nomeAtributo) {
-        String valor = atributoObrigatorio(nomeAtributo);
-        if (!"true".equalsIgnoreCase(valor) && !"false".equalsIgnoreCase(valor)) {
-            throw new IllegalArgumentException("O atributo '" + nomeAtributo + "' deve ser true ou false.");
-        }
-        return Boolean.parseBoolean(valor);
-    }
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    public String getSenha() { return senha; }
+    public void setSenha(String senha) { this.senha = senha; }
+    public TipoUsuario getTipo() { return tipo; }
+    public void setTipo(TipoUsuario tipo) { this.tipo = tipo; }
+    public Map<String, String> getAtributosEspecificos() { return atributosEspecificos; }
+    public void setAtributosEspecificos(Map<String, String> atributosEspecificos) { this.atributosEspecificos = atributosEspecificos; }
 }
