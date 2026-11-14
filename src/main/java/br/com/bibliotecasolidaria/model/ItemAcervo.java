@@ -1,28 +1,19 @@
 package br.com.bibliotecasolidaria.model;
 
+import br.com.bibliotecasolidaria.exception.NegocioException;
+import br.com.bibliotecasolidaria.model.enums.StatusItem;
+import br.com.bibliotecasolidaria.model.enums.TipoItemAcervo;
+
+/** Item do acervo (classe base de ExemplarFisico e Ebook). */
 public abstract class ItemAcervo {
-    protected Long id;
-    protected Long livroId;
-    protected StatusItem status = StatusItem.DISPONIVEL;
+    private Long id;
+    private Long livroId;
+    private StatusItem status;
 
-    public ItemAcervo() {}
-
-    public ItemAcervo(Long id, Long livroId, StatusItem status) {
+    protected ItemAcervo(Long id, Long livroId, StatusItem status) {
         this.id = id;
         this.livroId = livroId;
-        this.status = status != null ? status : StatusItem.DISPONIVEL;
-    }
-
-    public boolean estaDisponivel() {
-        return this.status == StatusItem.DISPONIVEL;
-    }
-
-    public void marcarEmprestado() {
-        this.status = StatusItem.EMPRESTADO;
-    }
-
-    public void marcarDisponivel() {
-        this.status = StatusItem.DISPONIVEL;
+        this.status = status;
     }
 
     public Long getId() { return id; }
@@ -31,4 +22,24 @@ public abstract class ItemAcervo {
     public void setLivroId(Long livroId) { this.livroId = livroId; }
     public StatusItem getStatus() { return status; }
     public void setStatus(StatusItem status) { this.status = status; }
+
+    public abstract TipoItemAcervo getTipo();
+
+    public boolean estaDisponivel() { return status == StatusItem.DISPONIVEL; }
+
+    public void marcarEmprestado() {
+        if (status != StatusItem.DISPONIVEL && status != StatusItem.RESERVADO) {
+            throw new NegocioException("O item não está disponível para empréstimo (status " + status + ").");
+        }
+        status = StatusItem.EMPRESTADO;
+    }
+
+    public void marcarDisponivel() { status = StatusItem.DISPONIVEL; }
+
+    public void marcarReservado() { status = StatusItem.RESERVADO; }
+
+    @Override
+    public String toString() {
+        return "ItemAcervo{" + "id=" + getId() + ", " + "livroId=" + getLivroId() + ", " + "status=" + getStatus() + "}";
+    }
 }

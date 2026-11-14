@@ -1,37 +1,58 @@
 package br.com.bibliotecasolidaria.strategy;
 
 import br.com.bibliotecasolidaria.model.Emprestimo;
+
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
+/**
+ * Valor diário crescente por faixas de atraso, com teto opcional. Dias além da última faixa
+ * usam o valor diário da última faixa.
+ */
 public class MultaProgressiva implements CalculoMultaStrategy {
-    private List<FaixaMulta> faixas;
-    private BigDecimal teto;
+    private final List<FaixaMulta> faixas;
+    private final BigDecimal teto;
 
     public MultaProgressiva(List<FaixaMulta> faixas, BigDecimal teto) {
-        this.faixas = faixas;
+        if (faixas == null || faixas.isEmpty()) {
+            throw new IllegalArgumentException("Informe ao menos uma faixa de multa.");
+        }
+        List<FaixaMulta> ordenadas = new ArrayList<>(faixas);
+        ordenadas.sort(Comparator.comparingInt(FaixaMulta::diaInicial));
+        for (int i = 1; i < ordenadas.size(); i++) {
+            if (ordenadas.get(i).diaInicial() <= ordenadas.get(i - 1).diaFinal()) {
+                throw new IllegalArgumentException("As faixas de multa não podem se sobrepor.");
+            }
+        }
+        if (teto != null && teto.signum() < 0) {
+            throw new IllegalArgumentException("O teto da multa não pode ser negativo.");
+        }
+        this.faixas = List.copyOf(ordenadas);
         this.teto = teto;
     }
 
     @Override
     public BigDecimal calcular(int diasAtraso, Emprestimo emprestimo) {
-        if (diasAtraso <= 0) return BigDecimal.ZERO;
         BigDecimal total = BigDecimal.ZERO;
-        for (int d = 1; d <= diasAtraso; d++) {
-            BigDecimal taxaDoDia = BigDecimal.valueOf(2.50);
-            if (faixas != null) {
-                for (FaixaMulta f : faixas) {
-                    if (d >= f.getDiaInicial() && d <= f.getDiaFinal()) {
-                        taxaDoDia = f.getValorDia();
-                        break;
-                    }
-                }
-            }
-            total = total.add(taxaDoDia);
+        for (int dia = 1; dia <= diasAtraso; dia++) {
+            total = total.add(valorDoDia(dia));
         }
         if (teto != null && total.compareTo(teto) > 0) {
             total = teto;
         }
-        return total;
+        return total.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private BigDecimal valorDoDia(int dia) {
+        for (FaixaMulta f : faixas) {
+            if (f.contem(dia)) {
+                return f.valorDia();
+            }
+        }
+        FaixaMulta ultima = faixas.get(faixas.size() - 1);
+        return dia > ultima.diaFinal() ? ultima.valorDia() : BigDecimal.ZERO;
     }
 }

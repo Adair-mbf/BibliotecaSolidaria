@@ -1,27 +1,27 @@
 package br.com.bibliotecasolidaria.factory;
 
-import br.com.bibliotecasolidaria.model.TipoUsuario;
+import br.com.bibliotecasolidaria.exception.ValidacaoException;
+import br.com.bibliotecasolidaria.model.enums.TipoUsuario;
+
 import java.util.EnumMap;
 import java.util.Map;
 
+/** Registro de fábricas por tipo de usuário. */
 public class FabricaRegistry {
     private final Map<TipoUsuario, UsuarioFactory> fabricas = new EnumMap<>(TipoUsuario.class);
 
-    public FabricaRegistry() {
-        registrar(TipoUsuario.DOADOR, new DoadorFactory());
-        registrar(TipoUsuario.USUARIO_SITE, new UsuarioSiteFactory());
-        registrar(TipoUsuario.FUNCIONARIO, new FuncionarioFactory());
-    }
-
-    public void registrar(TipoUsuario tipo, UsuarioFactory f) {
-        fabricas.put(tipo, f);
+    public void registrar(TipoUsuario tipo, UsuarioFactory fabrica) {
+        if (fabrica.tipoSuportado() != tipo) {
+            throw new IllegalArgumentException("A fábrica suporta " + fabrica.tipoSuportado() + ", não " + tipo + ".");
+        }
+        fabricas.put(tipo, fabrica);
     }
 
     public UsuarioFactory obter(TipoUsuario tipo) {
-        UsuarioFactory f = fabricas.get(tipo);
-        if (f == null) {
-            throw new IllegalArgumentException("Nenhuma fábrica registrada para o tipo: " + tipo);
+        UsuarioFactory fabrica = tipo == null ? null : fabricas.get(tipo);
+        if (fabrica == null) {
+            throw new ValidacaoException("Tipo de usuário sem fábrica registrada: " + tipo + ".");
         }
-        return f;
+        return fabrica;
     }
 }

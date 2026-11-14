@@ -1,59 +1,82 @@
 package br.com.bibliotecasolidaria.view;
 
-import br.com.bibliotecasolidaria.model.Domain.CategoriaLivro;
-import br.com.bibliotecasolidaria.model.Domain.Livro;
+import br.com.bibliotecasolidaria.controller.Requisicao;
+import br.com.bibliotecasolidaria.controller.Resposta;
 
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-/** Responsável somente pela entrada e saída da aplicação de console. */
-public final class ConsoleView implements AutoCloseable {
-    private final Scanner scanner = new Scanner(System.in);
+/** View de console: só lê entrada e imprime saída; toda regra fica nos controllers. */
+public class ConsoleView {
+    private final Scanner entrada;
+    private final PrintStream saida;
 
-    public int menu() {
-        System.out.println("\n=== Biblioteca Solidária ===");
-        System.out.println("1 - Cadastrar livro\n2 - Listar livros\n3 - Buscar livro por ID");
-        System.out.println("4 - Atualizar livro\n5 - Excluir livro\n0 - Sair");
-        return inteiro("Escolha: ");
+    public ConsoleView(InputStream in, PrintStream out) {
+        this.entrada = new Scanner(in);
+        this.saida = out;
     }
 
-    public LivroDados lerLivro() {
-        return new LivroDados(texto("Título: "), texto("Autor: "), texto("Editora (opcional): "),
-                texto("ISBN (opcional): "), categoria(), inteiro("Ano de publicação: "));
+    /** Lê uma linha; lança {@link NoSuchElementException} se a entrada acabar. */
+    public String ler(String prompt) {
+        saida.print(prompt);
+        saida.flush();
+        return entrada.nextLine().trim();
     }
 
-    public long lerId() { return inteiro("ID: "); }
-
-    public void mostrar(Livro livro) {
-        System.out.printf("%d | %s | %s | %s | %d%n", livro.id(), livro.titulo(), livro.autor(),
-                livro.categoria(), livro.anoPublicacao());
-    }
-
-    public void mostrarTodos(List<Livro> livros) {
-        if (livros.isEmpty()) { System.out.println("Nenhum livro cadastrado."); return; }
-        livros.forEach(this::mostrar);
-    }
-
-    public void mensagem(String mensagem) { System.out.println(mensagem); }
-
-    private CategoriaLivro categoria() {
+    /** Mostra o menu e devolve a escolha (0 = voltar/sair). */
+    public int menu(String titulo, List<String> opcoes, String rotuloZero) {
         while (true) {
-            try { return CategoriaLivro.valueOf(texto("Categoria (DIDATICO, INFANTIL, OUTRO): ").toUpperCase()); }
-            catch (IllegalArgumentException exception) { System.out.println("Categoria inválida."); }
+            saida.println();
+            saida.println("=== " + titulo + " ===");
+            for (int i = 0; i < opcoes.size(); i++) {
+                saida.printf("%2d - %s%n", i + 1, opcoes.get(i));
+            }
+            saida.printf("%2d - %s%n", 0, rotuloZero);
+            String linha = ler("Opção: ");
+            try {
+                int n = Integer.parseInt(linha);
+                if (n >= 0 && n <= opcoes.size()) {
+                    return n;
+                }
+            } catch (NumberFormatException ignorada) {
+                // cai na mensagem abaixo
+            }
+            saida.println("Opção inválida.");
         }
     }
 
-    private String texto(String mensagem) { System.out.print(mensagem); return scanner.nextLine().trim(); }
+    public Requisicao perguntar(List<Campo> campos) {
+        Map<String, String> valores = new HashMap<>();
+        for (Campo c : campos) {
+            valores.put(c.nome(), ler(c.rotulo()));
+        }
+        return new Requisicao(valores);
+    }
 
-    private int inteiro(String mensagem) {
-        while (true) {
-            try { return Integer.parseInt(texto(mensagem)); }
-            catch (NumberFormatException exception) { System.out.println("Digite um número válido."); }
+    public void exibir(Resposta r) {
+        saida.println();
+        saida.println((r.sucesso() ? "[OK " : "[ERRO ") + r.codigo() + "] " + r.mensagem());
+        Object dados = r.dados();
+        if (dados instanceof Iterable<?> itens) {
+            Iterator<?> it = itens.iterator();
+            if (!it.hasNext()) {
+                saida.println("  (nenhum registro)");
+            }
+            while (it.hasNext()) {
+                saida.println("  " + it.next());
+            }
+        } else if (dados != null) {
+            saida.println("  " + dados);
         }
     }
 
-    @Override public void close() { scanner.close(); }
-
-    public record LivroDados(String titulo, String autor, String editora, String isbn,
-                             CategoriaLivro categoria, int anoPublicacao) { }
+    public void mensagem(String texto) {
+        saida.println(texto);
+    }
 }

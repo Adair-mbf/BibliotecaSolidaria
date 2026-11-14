@@ -1,24 +1,16 @@
 package br.com.bibliotecasolidaria.dto;
 
+import br.com.bibliotecasolidaria.model.enums.TipoDoacao;
+
 import java.util.Map;
 
-public class DoacaoDTO {
-    private Long idDoador;
-    private String tipo;
-    private Map<String, Object> dadosItem;
-
-    public DoacaoDTO() {}
-
-    public DoacaoDTO(Long idDoador, String tipo, Map<String, Object> dadosItem) {
-        this.idDoador = idDoador;
-        this.tipo = tipo;
-        this.dadosItem = dadosItem;
+/**
+ * Pedido de registro de doação. Chaves de {@code dadosItem} por tipo:
+ * LIVRO_FISICO (titulo, autor, isbn, categoria, estado, quantidade), EBOOK (titulo, autor, arquivoUrl, formato)
+ * e DINHEIRO (valor, meioPagamento, comprovante).
+ */
+public record DoacaoDTO(Long idDoador, TipoDoacao tipo, Map<String, Object> dadosItem) {
+    public DoacaoDTO {
+        dadosItem = dadosItem == null ? Map.of() : Map.copyOf(dadosItem);
     }
-
-    public Long getIdDoador() { return idDoador; }
-    public void setIdDoador(Long idDoador) { this.idDoador = idDoador; }
-    public String getTipo() { return tipo; }
-    public void setTipo(String tipo) { this.tipo = tipo; }
-    public Map<String, Object> getDadosItem() { return dadosItem; }
-    public void setDadosItem(Map<String, Object> dadosItem) { this.dadosItem = dadosItem; }
 }

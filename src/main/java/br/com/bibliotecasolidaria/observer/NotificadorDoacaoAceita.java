@@ -1,22 +1,25 @@
 package br.com.bibliotecasolidaria.observer;
 
-import br.com.bibliotecasolidaria.model.Notificacao;
-import java.time.LocalDateTime;
+import br.com.bibliotecasolidaria.model.Bonificacao;
+
 import java.util.List;
 
-public class NotificadorDoacaoAceita implements Observador {
-    private final List<CanalNotificacao> canais;
-
+/** Agradece ao doador e informa as bonificações recebidas. */
+public class NotificadorDoacaoAceita extends NotificadorBase {
     public NotificadorDoacaoAceita(List<CanalNotificacao> canais) {
-        this.canais = canais;
+        super(canais);
     }
 
     @Override
-    public void atualizar(EventoBiblioteca evento) {
-        Long uId = evento.getDestinatario() != null ? evento.getDestinatario().getId() : null;
-        Notificacao n = new Notificacao(null, uId, evento.getTipo(), evento.getMensagem(), LocalDateTime.now(), false);
-        for (CanalNotificacao canal : canais) {
-            canal.enviar(n);
+    protected String montarMensagem(EventoBiblioteca evento) {
+        StringBuilder sb = new StringBuilder("Sua doação foi aceita. Muito obrigado!");
+        Object bonus = evento.dados().get("bonificacoes");
+        if (bonus instanceof List<?> lista && !lista.isEmpty()) {
+            sb.append(" Bonificações recebidas:");
+            for (Object b : lista) {
+                sb.append(" ").append(b instanceof Bonificacao bon ? bon.getDescricao() : b).append(";");
+            }
         }
+        return sb.toString();
     }
 }

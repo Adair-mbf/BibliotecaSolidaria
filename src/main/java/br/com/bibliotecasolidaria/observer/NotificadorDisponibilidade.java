@@ -1,22 +1,16 @@
 package br.com.bibliotecasolidaria.observer;
 
-import br.com.bibliotecasolidaria.model.Notificacao;
-import java.time.LocalDateTime;
 import java.util.List;
 
-public class NotificadorDisponibilidade implements Observador {
-    private final List<CanalNotificacao> canais;
-
+/** Avisa o usuário no topo da fila de reservas que o livro ficou disponível. */
+public class NotificadorDisponibilidade extends NotificadorBase {
     public NotificadorDisponibilidade(List<CanalNotificacao> canais) {
-        this.canais = canais;
+        super(canais);
     }
 
     @Override
-    public void atualizar(EventoBiblioteca evento) {
-        Long uId = evento.getDestinatario() != null ? evento.getDestinatario().getId() : null;
-        Notificacao n = new Notificacao(null, uId, evento.getTipo(), evento.getMensagem(), LocalDateTime.now(), false);
-        for (CanalNotificacao canal : canais) {
-            canal.enviar(n);
-        }
+    protected String montarMensagem(EventoBiblioteca evento) {
+        return "O livro \"" + evento.dados().get("livroTitulo")
+                + "\" que você reservou está disponível para empréstimo.";
     }
 }

@@ -1,85 +1,87 @@
 package br.com.bibliotecasolidaria.facade;
 
 import br.com.bibliotecasolidaria.dto.Devolucao;
-import br.com.bibliotecasolidaria.model.*;
-import br.com.bibliotecasolidaria.observer.EventoBiblioteca;
-import br.com.bibliotecasolidaria.observer.PublicadorEventos;
-import br.com.bibliotecasolidaria.repository.ItemAcervoRepositorio;
-import br.com.bibliotecasolidaria.repository.UsuarioRepositorio;
+import br.com.bibliotecasolidaria.exception.NegocioException;
+import br.com.bibliotecasolidaria.model.Emprestimo;
+import br.com.bibliotecasolidaria.model.ComprovantePagamento;
+import br.com.bibliotecasolidaria.model.ItemAcervo;
+import br.com.bibliotecasolidaria.model.Multa;
+import br.com.bibliotecasolidaria.model.Reserva;
+import br.com.bibliotecasolidaria.model.UsuarioSite;
+import br.com.bibliotecasolidaria.model.enums.StatusItem;
+import br.com.bibliotecasolidaria.persistence.ExecutorTransacional;
+import br.com.bibliotecasolidaria.service.AcervoService;
 import br.com.bibliotecasolidaria.service.EmprestimoService;
 import br.com.bibliotecasolidaria.service.MultaService;
-import java.time.LocalDate;
-import java.util.Map;
+import br.com.bibliotecasolidaria.service.ReservaService;
+import br.com.bibliotecasolidaria.service.UsuarioService;
 
+/** Facade: orquestra, de forma atômica, os passos de empréstimo, devolução, renovação e pagamento de multa. */
 public class EmprestimoFacade {
-    private final EmprestimoService emprestimoService;
-    private final MultaService multaService;
-    private final UsuarioRepositorio usuarioRepo;
-    private final ItemAcervoRepositorio itemRepo;
-    private final PublicadorEventos publicador;
+    private final UsuarioService usuarios;
+    private final AcervoService acervo;
+    private final EmprestimoService emprestimos;
+    private final MultaService multas;
+    private final ReservaService reservas;
+    private final ExecutorTransacional transacao;
 
-    public EmprestimoFacade(EmprestimoService es, MultaService ms, UsuarioRepositorio ur,
-                            ItemAcervoRepositorio ir, PublicadorEventos pub) {
-        this.emprestimoService = es;
-        this.multaService = ms;
-        this.usuarioRepo = ur;
-        this.itemRepo = ir;
-        this.publicador = pub;
+    public EmprestimoFacade(UsuarioService usuarios, AcervoService acervo, EmprestimoService emprestimos,
+                            MultaService multas, ReservaService reservas, ExecutorTransacional transacao) {
+        this.usuarios = usuarios;
+        this.acervo = acervo;
+        this.emprestimos = emprestimos;
+        this.multas = multas;
+        this.reservas = reservas;
+        this.transacao = transacao;
     }
 
-    public Emprestimo realizarEmprestimo(Long idUsuario, Long idItem) {
-        Usuario usuario = usuarioRepo.buscarPorId(idUsuario)
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado."));
-        if (!usuario.isAtivo()) {
-            throw new IllegalStateException("Usuário inativo.");
-        }
-        if (!multaService.listarPendentes(idUsuario).isEmpty()) {
-            throw new IllegalStateException("Usuário possui multas pendentes.");
-        }
-
-        ItemAcervo item = itemRepo.buscarPorId(idItem)
-                .orElseThrow(() -> new IllegalArgumentException("Item de acervo não encontrado."));
-        if (!item.estaDisponivel()) {
-            throw new IllegalStateException("Item do acervo não está disponível.");
-        }
-
-        item.marcarEmprestado();
-        itemRepo.salvar(item);
-
-        Emprestimo emp = new Emprestimo(null, idUsuario, idItem, LocalDate.now(),
-                LocalDate.now().plusDays(14), null, 0, StatusEmprestimo.ATIVO);
-        return emprestimoService.salvar(emp);
+    /** 1) usuário ativo e sem multa pendente; 2) item disponível; 3) registra e marca o item; 4) atende a reserva. */
+    public Emprestimo emprestar(long usuarioId, long itemId) {
+        return transacao.emTransacao(() -> {
+            UsuarioSite usuario = usuarios.buscarUsuarioSite(usuarioId);
+            if (!usuario.podeEmprestar()) {
+                throw new NegocioException("Usuário inativo não pode tomar empréstimos.");
+            }
+            if (multas.possuiPendencias(usuarioId)) {
+                throw new NegocioException("O usuário possui multas pendentes; quite-as antes de emprestar.");
+            }
+            ItemAcervo item = acervo.buscarItem(itemId);
+            if (!disponivelPara(item, usuarioId)) {
+                throw new NegocioException("O item " + itemId + " não está disponível (status " + item.getStatus() + ").");
+            }
+            Emprestimo emprestimo = emprestimos.registrarEmprestimo(usuario, item);
+            reservas.atenderReservaDoUsuario(usuarioId, item.getLivroId());
+            return emprestimo;
+        });
     }
 
-    public Devolucao devolver(Long idEmprestimo) {
-        Emprestimo emp = emprestimoService.buscarPorId(idEmprestimo)
-                .orElseThrow(() -> new IllegalArgumentException("Empréstimo não encontrado."));
-
-        emp.registrarDevolucao();
-        emprestimoService.salvar(emp);
-
-        ItemAcervo item = itemRepo.buscarPorId(emp.getItemAcervoId()).orElse(null);
-        if (item != null) {
-            item.marcarDisponivel();
-            itemRepo.salvar(item);
-        }
-
-        Multa multa = null;
-        if (emp.estaAtrasado()) {
-            multa = multaService.gerarMulta(emp);
-        }
-
-        publicador.notificar(new EventoBiblioteca(TipoEvento.LIVRO_DISPONIVEL, null,
-                "Item devolvido e liberado", Map.of("itemId", emp.getItemAcervoId())));
-
-        return new Devolucao(emp, multa, emp.diasAtraso());
+    /** Devolve o item, libera-o (ou o segura para a fila) e gera multa se houve atraso. */
+    public Devolucao devolver(long emprestimoId) {
+        return transacao.emTransacao(() -> {
+            Emprestimo e = emprestimos.registrarDevolucao(emprestimoId);
+            int dias = e.diasAtraso(e.getDataDevolucao());
+            Multa multa = dias > 0 ? multas.gerarMulta(e) : null;
+            return new Devolucao(e, multa, dias);
+        });
     }
 
-    public Emprestimo renovar(Long idEmprestimo) {
-        return emprestimoService.renovar(idEmprestimo);
+    public Emprestimo renovar(long emprestimoId) {
+        return transacao.emTransacao(() -> emprestimos.renovar(emprestimoId));
     }
 
-    public ComprovantePagamento pagarMulta(Long idMulta) {
-        return multaService.pagarMulta(idMulta);
+    public ComprovantePagamento pagarMulta(long multaId) {
+        return transacao.emTransacao(() -> multas.pagarMulta(multaId));
+    }
+
+    /** Item livre, ou segurado (RESERVADO) para este mesmo usuário por ser o primeiro da fila. */
+    private boolean disponivelPara(ItemAcervo item, long usuarioId) {
+        if (item.estaDisponivel()) {
+            return true;
+        }
+        if (item.getStatus() == StatusItem.RESERVADO) {
+            return reservas.proximaDaFila(item.getLivroId()).map(Reserva::getUsuarioId)
+                    .filter(id -> id == usuarioId).isPresent();
+        }
+        return false;
     }
 }

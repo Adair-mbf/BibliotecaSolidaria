@@ -1,22 +1,23 @@
 package br.com.bibliotecasolidaria.controller;
 
 import br.com.bibliotecasolidaria.service.RelatorioService;
-import java.util.Map;
 
-public class RelatorioController {
-    private final RelatorioService service;
+public class RelatorioController extends BaseController {
+    private final RelatorioService relatorios;
 
-    public RelatorioController(RelatorioService service) {
-        this.service = service;
+    public RelatorioController(RelatorioService relatorios) {
+        this.relatorios = relatorios;
     }
 
-    public record Resposta<T>(int status, String mensagem, T dados) {}
-
-    public Resposta<Map<String, Object>> emprestimosPorPeriodo() {
-        return new Resposta<>(200, "Relatório gerado", service.gerarRelatorioGeral());
+    /** Campos: inicio, fim (AAAA-MM-DD). */
+    public Resposta emprestimosPorPeriodo(Requisicao req) {
+        return executar(() -> Resposta.ok("Relatório gerado.",
+                relatorios.emprestimosPorPeriodo(req.data("inicio"), req.data("fim"))));
     }
 
-    public Resposta<Map<String, Object>> doacoes() {
-        return new Resposta<>(200, "Relatório de doações", service.gerarRelatorioGeral());
+    /** Campos: inicio, fim (AAAA-MM-DD). */
+    public Resposta doacoesPorPeriodo(Requisicao req) {
+        return executar(() -> Resposta.ok("Relatório gerado.",
+                relatorios.doacoesPorPeriodo(req.data("inicio"), req.data("fim"))));
     }
 }

@@ -1,16 +1,18 @@
 package br.com.bibliotecasolidaria.observer;
 
 import br.com.bibliotecasolidaria.model.Notificacao;
-import java.util.ArrayList;
-import java.util.List;
+import br.com.bibliotecasolidaria.persistence.NotificacaoRepositorio;
 
+/** Guarda a notificação no banco para consulta no painel do usuário. */
 public class CanalPainelInterno implements CanalNotificacao {
-    private final List<Notificacao> notificacoesInternas = new ArrayList<>();
+    private final NotificacaoRepositorio notificacoes;
+
+    public CanalPainelInterno(NotificacaoRepositorio notificacoes) {
+        this.notificacoes = notificacoes;
+    }
 
     @Override
     public void enviar(Notificacao notificacao) {
-        notificacoesInternas.add(notificacao);
+        notificacoes.salvar(notificacao);
     }
-
-    public List<Notificacao> getNotificacoesInternas() { return notificacoesInternas; }
 }

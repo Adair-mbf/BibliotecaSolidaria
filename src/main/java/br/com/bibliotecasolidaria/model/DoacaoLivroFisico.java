@@ -1,7 +1,12 @@
 package br.com.bibliotecasolidaria.model;
 
+import br.com.bibliotecasolidaria.model.enums.CategoriaLivro;
+import br.com.bibliotecasolidaria.model.enums.EstadoConservacao;
+import br.com.bibliotecasolidaria.model.enums.StatusDoacao;
+import br.com.bibliotecasolidaria.model.enums.TipoDoacao;
 import java.time.LocalDate;
 
+/** Doação de livros físicos. */
 public class DoacaoLivroFisico extends Doacao {
     private String titulo;
     private String autor;
@@ -10,11 +15,7 @@ public class DoacaoLivroFisico extends Doacao {
     private EstadoConservacao estado;
     private int quantidade;
 
-    public DoacaoLivroFisico() { super(); }
-
-    public DoacaoLivroFisico(Long id, Long doadorId, LocalDate dataRegistro, StatusDoacao status,
-                             String titulo, String autor, String isbn, CategoriaLivro categoria,
-                             EstadoConservacao estado, int quantidade) {
+    public DoacaoLivroFisico(Long id, Long doadorId, LocalDate dataRegistro, StatusDoacao status, String titulo, String autor, String isbn, CategoriaLivro categoria, EstadoConservacao estado, int quantidade) {
         super(id, doadorId, dataRegistro, status);
         this.titulo = titulo;
         this.autor = autor;
@@ -22,11 +23,6 @@ public class DoacaoLivroFisico extends Doacao {
         this.categoria = categoria;
         this.estado = estado;
         this.quantidade = quantidade;
-    }
-
-    @Override
-    public boolean avaliar() {
-        return estado != EstadoConservacao.RUIM && quantidade > 0;
     }
 
     public String getTitulo() { return titulo; }
@@ -41,4 +37,21 @@ public class DoacaoLivroFisico extends Doacao {
     public void setEstado(EstadoConservacao estado) { this.estado = estado; }
     public int getQuantidade() { return quantidade; }
     public void setQuantidade(int quantidade) { this.quantidade = quantidade; }
+
+    /** Estado de conservação mínimo aceito pela biblioteca. */
+    public static final EstadoConservacao ESTADO_MINIMO = EstadoConservacao.ACEITAVEL;
+
+    @Override
+    public boolean avaliar() {
+        return preenchido(titulo) && preenchido(autor) && preenchido(isbn) && categoria != null
+                && estado != null && estado.ordinal() <= ESTADO_MINIMO.ordinal() && quantidade > 0;
+    }
+
+    @Override
+    public TipoDoacao getTipo() { return TipoDoacao.LIVRO_FISICO; }
+
+    @Override
+    public String toString() {
+        return "DoacaoLivroFisico{" + "id=" + getId() + ", " + "doadorId=" + getDoadorId() + ", " + "dataRegistro=" + getDataRegistro() + ", " + "status=" + getStatus() + ", " + "titulo='" + getTitulo() + "'" + ", " + "autor='" + getAutor() + "'" + ", " + "isbn='" + getIsbn() + "'" + ", " + "categoria=" + getCategoria() + ", " + "estado=" + getEstado() + ", " + "quantidade=" + getQuantidade() + "}";
+    }
 }

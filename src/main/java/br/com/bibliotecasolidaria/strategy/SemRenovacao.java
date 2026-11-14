@@ -1,8 +1,11 @@
 package br.com.bibliotecasolidaria.strategy;
 
+import br.com.bibliotecasolidaria.exception.NegocioException;
 import br.com.bibliotecasolidaria.model.Emprestimo;
+
 import java.time.LocalDate;
 
+/** Política que não admite renovações. */
 public class SemRenovacao implements PoliticaRenovacao {
     @Override
     public boolean podeRenovar(Emprestimo emprestimo) {
@@ -11,6 +14,6 @@ public class SemRenovacao implements PoliticaRenovacao {
 
     @Override
     public LocalDate calcularNovoPrazo(Emprestimo emprestimo) {
-        return emprestimo != null ? emprestimo.getDataPrevistaDevolucao() : LocalDate.now();
+        throw new NegocioException("Esta política não permite renovações.");
     }
 }

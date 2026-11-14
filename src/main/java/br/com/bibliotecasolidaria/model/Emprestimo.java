@@ -1,8 +1,12 @@
 package br.com.bibliotecasolidaria.model;
 
+import br.com.bibliotecasolidaria.exception.NegocioException;
+import br.com.bibliotecasolidaria.exception.ValidacaoException;
+import br.com.bibliotecasolidaria.model.enums.StatusEmprestimo;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
+/** Empréstimo de um item do acervo a um usuário do site. */
 public class Emprestimo {
     private Long id;
     private Long usuarioId;
@@ -13,8 +17,6 @@ public class Emprestimo {
     private int renovacoes;
     private StatusEmprestimo status;
 
-    public Emprestimo() {}
-
     public Emprestimo(Long id, Long usuarioId, Long itemAcervoId, LocalDate dataEmprestimo, LocalDate dataPrevistaDevolucao, LocalDate dataDevolucao, int renovacoes, StatusEmprestimo status) {
         this.id = id;
         this.usuarioId = usuarioId;
@@ -23,29 +25,7 @@ public class Emprestimo {
         this.dataPrevistaDevolucao = dataPrevistaDevolucao;
         this.dataDevolucao = dataDevolucao;
         this.renovacoes = renovacoes;
-        this.status = status != null ? status : StatusEmprestimo.ATIVO;
-    }
-
-    public void renovar(LocalDate novoPrazo) {
-        this.dataPrevistaDevolucao = novoPrazo;
-        this.renovacoes++;
-    }
-
-    public void registrarDevolucao() {
-        this.dataDevolucao = LocalDate.now();
-        this.status = StatusEmprestimo.DEVOLVIDO;
-    }
-
-    public int diasAtraso() {
-        LocalDate dataFinal = (dataDevolucao != null) ? dataDevolucao : LocalDate.now();
-        if (dataPrevistaDevolucao != null && dataFinal.isAfter(dataPrevistaDevolucao)) {
-            return (int) ChronoUnit.DAYS.between(dataPrevistaDevolucao, dataFinal);
-        }
-        return 0;
-    }
-
-    public boolean estaAtrasado() {
-        return diasAtraso() > 0;
+        this.status = status;
     }
 
     public Long getId() { return id; }
@@ -64,4 +44,56 @@ public class Emprestimo {
     public void setRenovacoes(int renovacoes) { this.renovacoes = renovacoes; }
     public StatusEmprestimo getStatus() { return status; }
     public void setStatus(StatusEmprestimo status) { this.status = status; }
+
+    public void renovar(LocalDate novoPrazo) {
+        if (status == StatusEmprestimo.DEVOLVIDO) {
+            throw new NegocioException("Empréstimo já devolvido não pode ser renovado.");
+        }
+        if (novoPrazo == null || !novoPrazo.isAfter(dataPrevistaDevolucao)) {
+            throw new ValidacaoException("O novo prazo deve ser posterior ao prazo atual.");
+        }
+        dataPrevistaDevolucao = novoPrazo;
+        renovacoes++;
+    }
+
+    public void registrarDevolucao() { registrarDevolucao(LocalDate.now()); }
+
+    public void registrarDevolucao(LocalDate data) {
+        if (status == StatusEmprestimo.DEVOLVIDO) {
+            throw new NegocioException("O empréstimo já foi devolvido.");
+        }
+        if (data == null || data.isBefore(dataEmprestimo)) {
+            throw new ValidacaoException("A data de devolução não pode ser anterior ao empréstimo.");
+        }
+        dataDevolucao = data;
+        status = StatusEmprestimo.DEVOLVIDO;
+    }
+
+    public void marcarAtrasado() {
+        if (status == StatusEmprestimo.ATIVO) {
+            status = StatusEmprestimo.ATRASADO;
+        }
+    }
+
+    public boolean estaEmAberto() { return status != StatusEmprestimo.DEVOLVIDO; }
+
+    public int diasAtraso() { return diasAtraso(LocalDate.now()); }
+
+    /** Dias de atraso na data de referência; se já devolvido, usa a data da devolução. */
+    public int diasAtraso(LocalDate referencia) {
+        LocalDate efetiva = dataDevolucao != null ? dataDevolucao : referencia;
+        long dias = ChronoUnit.DAYS.between(dataPrevistaDevolucao, efetiva);
+        return dias > 0 ? (int) dias : 0;
+    }
+
+    public boolean estaAtrasado() { return estaAtrasado(LocalDate.now()); }
+
+    public boolean estaAtrasado(LocalDate referencia) {
+        return estaEmAberto() && referencia.isAfter(dataPrevistaDevolucao);
+    }
+
+    @Override
+    public String toString() {
+        return "Emprestimo{" + "id=" + getId() + ", " + "usuarioId=" + getUsuarioId() + ", " + "itemAcervoId=" + getItemAcervoId() + ", " + "dataEmprestimo=" + getDataEmprestimo() + ", " + "dataPrevistaDevolucao=" + getDataPrevistaDevolucao() + ", " + "dataDevolucao=" + getDataDevolucao() + ", " + "renovacoes=" + getRenovacoes() + ", " + "status=" + getStatus() + "}";
+    }
 }

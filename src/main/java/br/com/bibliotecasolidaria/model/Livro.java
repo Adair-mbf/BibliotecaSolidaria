@@ -1,5 +1,8 @@
 package br.com.bibliotecasolidaria.model;
 
+import br.com.bibliotecasolidaria.model.enums.CategoriaLivro;
+
+/** Obra do catálogo; os itens do acervo são cópias físicas ou digitais dela. */
 public class Livro {
     private Long id;
     private String titulo;
@@ -8,8 +11,6 @@ public class Livro {
     private String isbn;
     private CategoriaLivro categoria;
     private int anoPublicacao;
-
-    public Livro() {}
 
     public Livro(Long id, String titulo, String autor, String editora, String isbn, CategoriaLivro categoria, int anoPublicacao) {
         this.id = id;
@@ -35,4 +36,9 @@ public class Livro {
     public void setCategoria(CategoriaLivro categoria) { this.categoria = categoria; }
     public int getAnoPublicacao() { return anoPublicacao; }
     public void setAnoPublicacao(int anoPublicacao) { this.anoPublicacao = anoPublicacao; }
+
+    @Override
+    public String toString() {
+        return "Livro{" + "id=" + getId() + ", " + "titulo='" + getTitulo() + "'" + ", " + "autor='" + getAutor() + "'" + ", " + "editora='" + getEditora() + "'" + ", " + "isbn='" + getIsbn() + "'" + ", " + "categoria=" + getCategoria() + ", " + "anoPublicacao=" + getAnoPublicacao() + "}";
+    }
 }

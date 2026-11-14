@@ -1,22 +1,22 @@
 package br.com.bibliotecasolidaria.observer;
 
-import br.com.bibliotecasolidaria.model.Notificacao;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
-public class NotificadorVencimento implements Observador {
-    private final List<CanalNotificacao> canais;
-
+/** Avisa que um empréstimo está perto do vencimento. */
+public class NotificadorVencimento extends NotificadorBase {
     public NotificadorVencimento(List<CanalNotificacao> canais) {
-        this.canais = canais;
+        super(canais);
+    }
+
+    public static String mensagem(String titulo, LocalDate prazo, long diasRestantes) {
+        return "O empréstimo do livro \"" + titulo + "\" vence em " + prazo + " ("
+                + (diasRestantes == 0 ? "hoje" : "em " + diasRestantes + " dia(s)") + "). Renove ou devolva.";
     }
 
     @Override
-    public void atualizar(EventoBiblioteca evento) {
-        Long uId = evento.getDestinatario() != null ? evento.getDestinatario().getId() : null;
-        Notificacao n = new Notificacao(null, uId, evento.getTipo(), evento.getMensagem(), LocalDateTime.now(), false);
-        for (CanalNotificacao canal : canais) {
-            canal.enviar(n);
-        }
+    protected String montarMensagem(EventoBiblioteca evento) {
+        return mensagem(String.valueOf(evento.dados().get("livroTitulo")),
+                (LocalDate) evento.dados().get("prazo"), ((Number) evento.dados().get("diasRestantes")).longValue());
     }
 }

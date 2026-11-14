@@ -1,73 +1,75 @@
 package br.com.bibliotecasolidaria.facade;
 
 import br.com.bibliotecasolidaria.dto.DoacaoDTO;
-import br.com.bibliotecasolidaria.model.*;
-import br.com.bibliotecasolidaria.observer.EventoBiblioteca;
-import br.com.bibliotecasolidaria.observer.PublicadorEventos;
-import br.com.bibliotecasolidaria.repository.ItemAcervoRepositorio;
-import br.com.bibliotecasolidaria.repository.LivroRepositorio;
-import br.com.bibliotecasolidaria.repository.UsuarioRepositorio;
+import br.com.bibliotecasolidaria.exception.NegocioException;
+import br.com.bibliotecasolidaria.model.Bonificacao;
+import br.com.bibliotecasolidaria.model.Doacao;
+import br.com.bibliotecasolidaria.model.Doador;
+import br.com.bibliotecasolidaria.model.ItemAcervo;
+import br.com.bibliotecasolidaria.persistence.ExecutorTransacional;
+import br.com.bibliotecasolidaria.service.AcervoService;
 import br.com.bibliotecasolidaria.service.BonificacaoService;
 import br.com.bibliotecasolidaria.service.DoacaoService;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Map;
+import br.com.bibliotecasolidaria.service.ReservaService;
+import br.com.bibliotecasolidaria.service.UsuarioService;
 
+import java.util.List;
+
+/**
+ * Facade do fluxo de doação: valida o doador, avalia o item ou valor, inclui no acervo,
+ * concede bonificações e notifica o doador (evento DOACAO_ACEITA), tudo em uma transação.
+ */
 public class DoacaoFacade {
-    private final UsuarioRepositorio usuarioRepo;
-    private final DoacaoService doacaoService;
-    private final LivroRepositorio livroRepo;
-    private final ItemAcervoRepositorio itemRepo;
-    private final BonificacaoService bonificacaoService;
-    private final PublicadorEventos publicador;
+    private final DoacaoService doacoes;
+    private final UsuarioService usuarios;
+    private final AcervoService acervo;
+    private final BonificacaoService bonificacoes;
+    private final ReservaService reservas;
+    private final ExecutorTransacional transacao;
 
-    public DoacaoFacade(UsuarioRepositorio ur, DoacaoService ds, LivroRepositorio lr,
-                        ItemAcervoRepositorio ir, BonificacaoService bs, PublicadorEventos pub) {
-        this.usuarioRepo = ur;
-        this.doacaoService = ds;
-        this.livroRepo = lr;
-        this.itemRepo = ir;
-        this.bonificacaoService = bs;
-        this.publicador = pub;
+    public DoacaoFacade(DoacaoService doacoes, UsuarioService usuarios, AcervoService acervo,
+                        BonificacaoService bonificacoes, ReservaService reservas, ExecutorTransacional transacao) {
+        this.doacoes = doacoes;
+        this.usuarios = usuarios;
+        this.acervo = acervo;
+        this.bonificacoes = bonificacoes;
+        this.reservas = reservas;
+        this.transacao = transacao;
     }
 
+    /** Registra e processa a doação: ao final ela está ACEITA ou RECUSADA. */
     public Doacao registrarDoacao(DoacaoDTO dto) {
-        Usuario user = usuarioRepo.buscarPorId(dto.getIdDoador())
-                .orElseThrow(() -> new IllegalArgumentException("Doador não encontrado."));
-        if (!(user instanceof Doador doador)) {
-            throw new IllegalStateException("Usuário não registrado como Doador.");
-        }
+        return transacao.emTransacao(() -> avaliarDoacao(doacoes.registrar(dto).getId()));
+    }
 
-        Doacao doacao;
-        String tipo = dto.getTipo() != null ? dto.getTipo().toUpperCase() : "LIVRO_FISICO";
-        Map<String, Object> d = dto.getDadosItem();
-
-        if ("EBOOK".equals(tipo)) {
-            doacao = new DoacaoEbook(null, doador.getId(), LocalDate.now(), StatusDoacao.REGISTRADA,
-                    (String) d.get("titulo"), (String) d.get("autor"), (String) d.get("arquivoUrl"), (String) d.get("formato"));
-        } else if ("DINHEIRO".equals(tipo)) {
-            BigDecimal val = d.get("valor") instanceof BigDecimal bd ? bd : new BigDecimal(String.valueOf(d.get("valor")));
-            doacao = new DoacaoDinheiro(null, doador.getId(), LocalDate.now(), StatusDoacao.REGISTRADA,
-                    val, (String) d.get("meioPagamento"), (String) d.get("comprovante"));
-        } else {
-            int qtd = d.get("quantidade") instanceof Number n ? n.intValue() : 1;
-            doacao = new DoacaoLivroFisico(null, doador.getId(), LocalDate.now(), StatusDoacao.REGISTRADA,
-                    (String) d.get("titulo"), (String) d.get("autor"), (String) d.get("isbn"),
-                    CategoriaLivro.OUTRO, EstadoConservacao.BOM, qtd);
-        }
-
-        if (doacao.avaliar()) {
-            doacao.aceitar();
-            if (doacao instanceof DoacaoLivroFisico df) {
-                Livro l = livroRepo.salvar(new Livro(null, df.getTitulo(), df.getAutor(), "Solidária", df.getIsbn(), df.getCategoria(), 2024));
-                itemRepo.salvar(new ExemplarFisico(null, l.getId(), StatusItem.DISPONIVEL, "TOMBO-" + l.getId(), df.getEstado(), "Estante Doações"));
+    /** Avalia uma doação pendente pelas regras do seu tipo: aceita (e processa) ou recusa. */
+    public Doacao avaliarDoacao(long id) {
+        return transacao.emTransacao(() -> {
+            if (doacoes.avaliar(id)) {
+                return concluirAceite(id);
             }
-            bonificacaoService.processar(doador, doacao);
-            publicador.notificar(new EventoBiblioteca(TipoEvento.DOACAO_ACEITA, doador, "Doação aceita com sucesso!", Map.of("doadorId", doador.getId())));
-        } else {
-            doacao.recusar("Não atendeu critérios mínimos");
-        }
+            return doacoes.recusar(id, "Não atende aos critérios mínimos de aceitação.");
+        });
+    }
 
-        return doacaoService.salvar(doacao);
+    /** Decisão manual de um funcionário: aceita uma doação pendente, mesmo que a regra automática a recusasse. */
+    public Doacao aceitarDoacao(long id) {
+        return transacao.emTransacao(() -> concluirAceite(id));
+    }
+
+    public Doacao recusarDoacao(long id, String motivo) {
+        return transacao.emTransacao(() -> doacoes.recusar(id, motivo));
+    }
+
+    private Doacao concluirAceite(long id) {
+        Doacao d = doacoes.buscar(id);
+        if (d.estaFinalizada()) {
+            throw new NegocioException("A doação já foi finalizada com status " + d.getStatus() + ".");
+        }
+        Doador doador = usuarios.buscarDoador(d.getDoadorId());
+        List<ItemAcervo> itens = acervo.incluirDoacao(d);
+        itens.forEach(reservas::reservarItemParaProximo);
+        List<Bonificacao> concedidas = bonificacoes.processar(doador, d);
+        return doacoes.aceitar(id, concedidas);
     }
 }
